@@ -4,9 +4,14 @@ import { runGpuBenchmark } from './benchmark';
 
 const RESOLUTION_SCALE = 2;
 const SPRITE_COUNT = 441;
-const FRAME_COUNT = 15;
-// const BENCHMARK_RUNS_COUNT = 4;
-// const IS_IGNORE_FIRST_RUN = true;
+const FRAME_COUNT = 10;
+const BENCHMARK_RUNS_COUNT = 5;
+
+// Первое выполнение теста занимает значительно большее время, что портит средние значения,
+// которые в свою очередь, являются показателями производительности в процессе работы.
+// Данный флаг позволяет избежать этого.
+const IS_IGNORE_FIRST_RUN = false;
+
 
 const canvas = document.createElement('canvas');
 document.body.appendChild(canvas);
@@ -16,10 +21,8 @@ await app.init({
     canvas,
     width: window.innerWidth,
     height: window.innerHeight,
-
     resolution: RESOLUTION_SCALE,
     autoDensity: true,
-
     preference: 'webgl',
     antialias: false,
     autoStart: false,
@@ -33,10 +36,11 @@ const renderFrame = () => {
     scene.render();
     app.renderer.render(app.stage);
 };
-
-const result = await runGpuBenchmark(renderFrame, FRAME_COUNT);
+const result = await runGpuBenchmark(renderFrame, FRAME_COUNT, BENCHMARK_RUNS_COUNT, IS_IGNORE_FIRST_RUN);
 
 app.stop();
 scene.destroy();
 
 showOverlay(result);
+
+

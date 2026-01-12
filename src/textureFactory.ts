@@ -1,3 +1,5 @@
+//deprecated
+
 import {Texture} from "pixi.js";
 
 export function createTextures(

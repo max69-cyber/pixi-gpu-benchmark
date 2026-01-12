@@ -1,5 +1,8 @@
+//deprecated
+
 import {Application, Container, Graphics, Sprite} from 'pixi.js';
 import { createTextures } from './textureFactory';
+import type {GpuBenchmarkResult} from "./types.ts";
 
 export function createGpuScene(
     app: Application,
@@ -61,24 +64,30 @@ export function createGpuScene(
     };
 }
 
-export function showOverlay(result: {
-    frames: number;
-    totalMs: number;
-    avgFrameMs: number;
-    fps: number;
-}) {
+export function showOverlay(result: GpuBenchmarkResult) {
     const el = document.getElementById('overlay');
-
     if (!el) return;
+
+    const best = Math.min(...result.allRuns.map(r => r.avgFrameMs));
+    const worst = Math.max(...result.allRuns.map(r => r.avgFrameMs));
 
     el.style.display = 'block';
     el.textContent =
-        `PIXΙ GPU BENCHMARK
+        `PIXI GPU BENCHMARK
 
-Frames:        ${result.frames}
-Total time:    ${result.totalMs.toFixed(2)} ms
+Runs used:     ${result.runs}
 Avg frame:     ${result.avgFrameMs.toFixed(3)} ms
 Derived FPS:   ${result.fps.toFixed(1)}
+
+Best frame:    ${best.toFixed(3)} ms
+Worst frame:   ${worst.toFixed(3)} ms
+
+Per-run results:
+${result.allRuns
+            .map((r, i) =>
+                `  #${i + 1}: ${r.avgFrameMs.toFixed(3)} ms (${r.fps.toFixed(1)} FPS)`
+            )
+            .join('\n')}
 
 Status:        ${result.avgFrameMs < 25 ? 'OK' : 'SLOW'}
 `;
