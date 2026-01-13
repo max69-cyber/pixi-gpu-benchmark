@@ -59,7 +59,6 @@ export async function runGpuBenchmarkOnce(
             renderFrame();
 
             if (frames < totalFrames) {
-                console.log('request frame');
                 requestAnimationFrame(loop);
             } else {
                 const totalMs = now - start;
