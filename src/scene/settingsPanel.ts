@@ -1,17 +1,33 @@
 import type {BenchmarkConfig} from "../types.ts";
 
 const presets: Record<string, Pick<BenchmarkConfig, 'resolutionScale' | 'spriteCount'>> = {
+    very_light: {
+        resolutionScale: 2,
+        spriteCount: 484,
+    },
     light: {
         resolutionScale: 3,
         spriteCount: 1089,
     },
-    medium: {
+    moderate: {
+        resolutionScale: 4,
+        spriteCount: 1936,
+    },
+    balanced: {
         resolutionScale: 5,
-        spriteCount: 3025,
+        spriteCount: 3600,
     },
     heavy: {
+        resolutionScale: 7,
+        spriteCount: 5929,
+    },
+    very_heavy: {
         resolutionScale: 9,
         spriteCount: 9801,
+    },
+    extreme: {
+        resolutionScale: 11,
+        spriteCount: 14884,
     },
 };
 
@@ -39,7 +55,7 @@ export function initSettingsPanel(
     });
 
     // --- defaults ---
-    preset.value = 'medium';
+    preset.value = 'balanced';
     resolutionScale.value = '5';
     spriteCount.value = '3025';
     frameCount.value = '12';
