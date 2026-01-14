@@ -3,39 +3,49 @@ import { createGpuScene } from './scene/testScene.ts';
 import { showOverlay } from './scene/overlay.ts';
 import { runGpuBenchmark } from './benchmark/benchmark.ts';
 import { initSettingsPanel } from './scene/settingsPanel.ts';
-import type {BenchmarkConfig} from "./types.ts";
-import {showWebGLLostContextError} from "./scene/errorPanel.ts";
+import type { BenchmarkConfig } from "./types.ts";
+import { showWebGLLostContextError } from "./scene/errorPanel.ts";
 
-const canvas = document.createElement('canvas');
-document.body.appendChild(canvas);
-
-canvas.addEventListener('webglcontextlost', (e) => {
-    e.preventDefault();
-
-    app.stop();
-    showWebGLLostContextError();
-});
-
-const app = new Application();
-await app.init({
-    canvas,
-    width: window.innerWidth,
-    height: window.innerHeight,
-    autoDensity: true,
-    preference: 'webgl',
-    antialias: false,
-    autoStart: false,
-    powerPreference: 'high-performance',
-    failIfMajorPerformanceCaveat: true,
-});
-
+let app: Application;
 let scene: ReturnType<typeof createGpuScene> | null = null;
+
+async function bootstrap() {
+    const canvas = document.createElement('canvas');
+    document.body.appendChild(canvas);
+
+    canvas.addEventListener('webglcontextlost', (e) => {
+        e.preventDefault();
+        showWebGLLostContextError();
+    });
+
+    app = new Application();
+
+    console.log('[bootstrap] before pixi init');
+
+    await app.init({
+        canvas,
+        width: window.innerWidth,
+        height: window.innerHeight,
+        autoDensity: true,
+        preference: 'webgl',
+        antialias: false,
+        autoStart: false,
+        powerPreference: 'high-performance',
+        failIfMajorPerformanceCaveat: true,
+    });
+
+    console.log('[bootstrap] pixi initialized');
+
+    initSettingsPanel(run);
+}
 
 // --- функция запуска бенча ---
 async function run(config: BenchmarkConfig) {
-    // пересоздаём сцену под новые параметры
+    if (!app) return;
+
     if (scene) {
         scene.destroy();
+        app.stage.removeChildren();
     }
 
     scene = createGpuScene(
@@ -58,12 +68,15 @@ async function run(config: BenchmarkConfig) {
         config.fpsTolerance,
     );
 
-    // app.stop();
     scene.destroy();
     app.stage.removeChildren();
+    scene = null;
 
     showOverlay(result);
 }
 
-// --- инициализация панели настроек ---
-initSettingsPanel(run);
+window.addEventListener('DOMContentLoaded', () => {
+    bootstrap().catch(err => {
+        console.error('Bootstrap failed:', err);
+    });
+});

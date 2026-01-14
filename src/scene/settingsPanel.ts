@@ -15,7 +15,7 @@ const presets: Record<string, Pick<BenchmarkConfig, 'resolutionScale' | 'spriteC
     },
     balanced: {
         resolutionScale: 5,
-        spriteCount: 3600,
+        spriteCount: 3025,
     },
     heavy: {
         resolutionScale: 7,
@@ -45,6 +45,18 @@ export function initSettingsPanel(
     const fpsTolerance = document.getElementById('fpsTolerance') as HTMLInputElement;
     const runBtn = document.getElementById('runBenchmark')!;
 
+    preset.value = 'balanced';
+    const p = presets['balanced'];
+
+    resolutionScale.value = String(p.resolutionScale);
+    spriteCount.value = String(p.spriteCount);
+
+    frameCount.value = '12';
+    runsCount.value = '7';
+    warmupRuns.value = '2';
+    targetFps.value = '60';
+    fpsTolerance.value = '0.5';
+
     // --- presets ---
     preset.addEventListener('change', () => {
         const p = presets[preset.value];
@@ -53,16 +65,6 @@ export function initSettingsPanel(
         resolutionScale.value = String(p.resolutionScale);
         spriteCount.value = String(p.spriteCount);
     });
-
-    // --- defaults ---
-    preset.value = 'balanced';
-    resolutionScale.value = '5';
-    spriteCount.value = '3025';
-    frameCount.value = '12';
-    runsCount.value = '7';
-    warmupRuns.value = '2';
-    targetFps.value = '60';
-    fpsTolerance.value = '0.5';
 
     // --- run ---
     runBtn.addEventListener('click', () => {
@@ -95,4 +97,6 @@ export function initSettingsPanel(
             }
         })
     })
+
+
 }
