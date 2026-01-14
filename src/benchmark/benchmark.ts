@@ -1,5 +1,5 @@
 //deprecated
-import type {GpuBenchmarkResult, GpuBenchmarkRunResult} from "./types.ts";
+import type {GpuBenchmarkResult, GpuBenchmarkRunResult} from "../types.ts";
 
 export async function runGpuBenchmark(
     renderFrame: () => void,
@@ -19,7 +19,6 @@ export async function runGpuBenchmark(
             fpsTolerance,
         );
         if (i + 1  > warmupRunsCount) {
-            console.log(result);
             results.push(result);
         }
     }

@@ -13,3 +13,13 @@ export type GpuBenchmarkResult = {
     fps: number;
     allRuns: GpuBenchmarkRunResult[];
 };
+
+export type BenchmarkConfig = {
+    resolutionScale: number;
+    spriteCount: number;
+    frameCount: number;
+    runs: number;
+    warmupRuns: number;
+    targetMs: number;
+    fpsTolerance: number;
+};

@@ -1,32 +1,26 @@
 import { Application } from 'pixi.js';
-import {createGpuScene, showOverlay} from './testScene';
-import { runGpuBenchmark } from './benchmark';
-import type {GpuBenchmarkResult} from "./types.ts";
-
-const RESOLUTION_SCALE = 5;
-const SPRITE_COUNT = 3025;
-
-// const RESOLUTION_SCALE = 9;
-// const SPRITE_COUNT = 9801;
-
-const FRAME_COUNT = 12;
-const BENCHMARK_RUNS_COUNT = 7;
-const TARGET_MS = 1000 / 60;
-const FPS_TOLERANCE = 0.5;
-
-// Первое выполнение теста занимает значительно большее время, что портит средние значения,
-// которые в свою очередь, являются показателями производительности в процессе работы.
-const WARMUP_RUNS_COUNT = 0;
+import { createGpuScene } from './scene/testScene.ts';
+import { showOverlay } from './scene/overlay.ts';
+import { runGpuBenchmark } from './benchmark/benchmark.ts';
+import { initSettingsPanel } from './scene/settingsPanel.ts';
+import type {BenchmarkConfig} from "./types.ts";
+import {showWebGLLostContextError} from "./scene/errorPanel.ts";
 
 const canvas = document.createElement('canvas');
 document.body.appendChild(canvas);
+
+canvas.addEventListener('webglcontextlost', (e) => {
+    e.preventDefault();
+
+    app.stop();
+    showWebGLLostContextError();
+});
 
 const app = new Application();
 await app.init({
     canvas,
     width: window.innerWidth,
     height: window.innerHeight,
-    resolution: RESOLUTION_SCALE,
     autoDensity: true,
     preference: 'webgl',
     antialias: false,
@@ -35,24 +29,41 @@ await app.init({
     failIfMajorPerformanceCaveat: true,
 });
 
-const scene = createGpuScene(app, SPRITE_COUNT, RESOLUTION_SCALE);
+let scene: ReturnType<typeof createGpuScene> | null = null;
 
-const renderFrame = () => {
-    scene.render();
-    app.renderer.render(app.stage);
-};
-const result: GpuBenchmarkResult = await runGpuBenchmark(
-    renderFrame,
-    FRAME_COUNT,
-    BENCHMARK_RUNS_COUNT,
-    WARMUP_RUNS_COUNT,
-    TARGET_MS,
-    FPS_TOLERANCE
-);
+// --- функция запуска бенча ---
+async function run(config: BenchmarkConfig) {
+    // пересоздаём сцену под новые параметры
+    if (scene) {
+        scene.destroy();
+    }
 
-app.stop();
-scene.destroy();
+    scene = createGpuScene(
+        app,
+        config.spriteCount,
+        config.resolutionScale,
+    );
 
-showOverlay(result);
+    const renderFrame = () => {
+        scene!.render();
+        app.renderer.render(app.stage);
+    };
 
+    const result = await runGpuBenchmark(
+        renderFrame,
+        config.frameCount,
+        config.runs,
+        config.warmupRuns,
+        config.targetMs,
+        config.fpsTolerance,
+    );
 
+    // app.stop();
+    scene.destroy();
+    app.stage.removeChildren();
+
+    showOverlay(result);
+}
+
+// --- инициализация панели настроек ---
+initSettingsPanel(run);
