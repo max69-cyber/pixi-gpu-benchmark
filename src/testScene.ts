@@ -1,7 +1,7 @@
 //deprecated
 
 import {Application, Container, Graphics, Sprite} from 'pixi.js';
-import { createTextures } from './textureFactory';
+import {createTextures} from './textureFactory';
 import type {GpuBenchmarkResult} from "./types.ts";
 
 export function createGpuScene(
@@ -45,6 +45,7 @@ export function createGpuScene(
             s.height = spriteSize;
             s.x = x * cell + gap / 2;
             s.y = y * cell + gap / 2;
+            s.alpha = 0.3 + Math.random() * 0.2;
 
             root.addChild(s);
             index++;
@@ -53,9 +54,15 @@ export function createGpuScene(
 
     const rotationPerFrame = 0.003;
 
+    let t = 0;
+
     return {
         render() {
             root.rotation += rotationPerFrame;
+
+            t += 0.008;
+            const s = 1 - t * 0.2;
+            root.scale.set(s / resolutionScale);
         },
         destroy() {
             root.destroy({ children: true });
@@ -71,11 +78,18 @@ export function showOverlay(result: GpuBenchmarkResult) {
     const best = Math.min(...result.allRuns.map(r => r.avgFrameMs));
     const worst = Math.max(...result.allRuns.map(r => r.avgFrameMs));
 
+    const passedRuns =
+        result.allRuns.filter(r => r.isPassed).length;
+
+    const isPassed =
+        passedRuns / result.allRuns.length >= 0.8;
+
     el.style.display = 'block';
     el.textContent =
         `PIXI GPU BENCHMARK
 
 Runs used:     ${result.runs}
+Warmup runs:   ${result.warmupRunsCount}
 Avg frame:     ${result.avgFrameMs.toFixed(3)} ms
 Derived FPS:   ${result.fps.toFixed(1)}
 
@@ -85,10 +99,14 @@ Worst frame:   ${worst.toFixed(3)} ms
 Per-run results:
 ${result.allRuns
             .map((r, i) =>
-                `  #${i + 1}: ${r.avgFrameMs.toFixed(3)} ms (${r.fps.toFixed(1)} FPS)`
+                `  #${i + 1}: ${r.avgFrameMs.toFixed(3)} ms (${r.fps.toFixed(1)} FPS) - ${r.isPassed ? 'passed' : 'not passed'} `
             )
             .join('\n')}
+            
+Passed runs:   ${passedRuns} / ${result.allRuns.length}
 
-Status:        ${result.avgFrameMs < 25 ? 'OK' : 'SLOW'}
+Final score:   ${result.allRuns.reduce((sum, run) => sum + run.score, 0)} / ${result.runs * 1000}
+
+Status:        ${isPassed ? 'passed' : 'not passed'}
 `;
 }

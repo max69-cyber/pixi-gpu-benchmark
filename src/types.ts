@@ -1,12 +1,15 @@
-export type GpuBenchmarkResult = {
-    runs: number;
+export type GpuBenchmarkRunResult = {
+    frames: number;
+    totalMs: number;
     avgFrameMs: number;
     fps: number;
-    allRuns: {
-        frames: number;
-        totalMs: number;
-        avgFrameMs: number;
-        fps: number;
-    }[];
+    score: number;
+    isPassed: boolean;
 };
-
+export type GpuBenchmarkResult = {
+    runs: number;
+    warmupRunsCount: number;
+    avgFrameMs: number;
+    fps: number;
+    allRuns: GpuBenchmarkRunResult[];
+};
