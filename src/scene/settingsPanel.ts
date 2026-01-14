@@ -1,39 +1,22 @@
-import type {BenchmarkConfig} from "../types.ts";
+import {type BenchmarkConfig, PresetType} from "../types.ts";
 
-const presets: Record<string, Pick<BenchmarkConfig, 'resolutionScale' | 'spriteCount'>> = {
-    very_light: {
-        resolutionScale: 2,
-        spriteCount: 484,
-    },
-    light: {
-        resolutionScale: 3,
-        spriteCount: 1089,
-    },
-    moderate: {
-        resolutionScale: 4,
-        spriteCount: 1936,
-    },
-    balanced: {
-        resolutionScale: 5,
-        spriteCount: 3025,
-    },
-    heavy: {
-        resolutionScale: 7,
-        spriteCount: 5929,
-    },
-    very_heavy: {
-        resolutionScale: 9,
-        spriteCount: 9801,
-    },
-    extreme: {
-        resolutionScale: 11,
-        spriteCount: 14884,
-    },
+const presets: Record<
+    PresetType,
+    Pick<BenchmarkConfig, 'resolutionScale' | 'spriteCount'>
+> = {
+    [PresetType.VERY_LIGHT]: { resolutionScale: 2, spriteCount: 484 },
+    [PresetType.LIGHT]: { resolutionScale: 3, spriteCount: 1089 },
+    [PresetType.MODERATE]: { resolutionScale: 4, spriteCount: 1936 },
+    [PresetType.BALANCED]: { resolutionScale: 5, spriteCount: 3025 },
+    [PresetType.HEAVY]: { resolutionScale: 7, spriteCount: 5929 },
+    [PresetType.VERY_HEAVY]: { resolutionScale: 9, spriteCount: 9801 },
+    [PresetType.EXTREME]: { resolutionScale: 11, spriteCount: 14884 },
+    [PresetType.CUSTOM]: { resolutionScale: 1, spriteCount: 1 },
 };
 
 
 export function initSettingsPanel(
-    onRun: (config: BenchmarkConfig) => void,
+    onRun: (config: BenchmarkConfig, preset: PresetType) => void,
 ) {
     const preset = document.getElementById('preset') as HTMLSelectElement;
     const resolutionScale = document.getElementById('resolutionScale') as HTMLInputElement;
@@ -45,8 +28,8 @@ export function initSettingsPanel(
     const fpsTolerance = document.getElementById('fpsTolerance') as HTMLInputElement;
     const runBtn = document.getElementById('runBenchmark')!;
 
-    preset.value = 'balanced';
-    const p = presets['balanced'];
+    preset.value = PresetType.BALANCED;
+    const p = presets[PresetType.BALANCED];
 
     resolutionScale.value = String(p.resolutionScale);
     spriteCount.value = String(p.spriteCount);
@@ -57,9 +40,14 @@ export function initSettingsPanel(
     targetFps.value = '60';
     fpsTolerance.value = '0.5';
 
-    // --- presets ---
     preset.addEventListener('change', () => {
-        const p = presets[preset.value];
+        const presetValue = preset.value as PresetType;
+
+        if (presetValue === PresetType.CUSTOM) {
+            return;
+        }
+
+        const p = presets[presetValue];
         if (!p) return;
 
         resolutionScale.value = String(p.resolutionScale);
@@ -78,10 +66,10 @@ export function initSettingsPanel(
             fpsTolerance: Number(fpsTolerance.value),
         };
 
-        onRun(config);
+
+        onRun(config, preset.value as PresetType);
     });
 
-    // reset preset value
     [
         resolutionScale,
         spriteCount,
@@ -89,14 +77,12 @@ export function initSettingsPanel(
         runsCount,
         warmupRuns,
         targetFps,
-        fpsTolerance
-    ].forEach((input) => {
+        fpsTolerance,
+    ].forEach(input => {
         input.addEventListener('input', () => {
-            if (preset.value !== 'custom') {
-                preset.value = 'custom';
+            if (preset.value !== PresetType.CUSTOM) {
+                preset.value = PresetType.CUSTOM;
             }
-        })
-    })
-
-
+        });
+    });
 }

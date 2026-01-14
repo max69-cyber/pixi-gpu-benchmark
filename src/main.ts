@@ -3,7 +3,7 @@ import { createGpuScene } from './scene/testScene.ts';
 import { showOverlay } from './scene/overlay.ts';
 import { runGpuBenchmark } from './benchmark/benchmark.ts';
 import { initSettingsPanel } from './scene/settingsPanel.ts';
-import type { BenchmarkConfig } from "./types.ts";
+import {type BenchmarkConfig, PresetType} from "./types.ts";
 import { showWebGLLostContextError } from "./scene/errorPanel.ts";
 
 let app: Application;
@@ -36,7 +36,7 @@ async function bootstrap() {
 }
 
 // --- функция запуска бенча ---
-async function run(config: BenchmarkConfig) {
+async function run(config: BenchmarkConfig, preset: PresetType) {
     if (!app) return;
 
     if (scene) {
@@ -68,7 +68,7 @@ async function run(config: BenchmarkConfig) {
     app.stage.removeChildren();
     scene = null;
 
-    showOverlay(result);
+    showOverlay(result, config, preset);
 }
 
 window.addEventListener('DOMContentLoaded', () => {

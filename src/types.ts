@@ -23,3 +23,14 @@ export type BenchmarkConfig = {
     targetMs: number;
     fpsTolerance: number;
 };
+
+export enum PresetType {
+    CUSTOM = 'custom',
+    VERY_LIGHT = 'very_light',
+    LIGHT = 'light',
+    MODERATE = 'moderate',
+    BALANCED = 'balanced',
+    HEAVY = 'heavy',
+    VERY_HEAVY = 'very_heavy',
+    EXTREME = 'extreme',
+}

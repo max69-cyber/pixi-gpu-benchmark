@@ -19,18 +19,26 @@
             color: #0f0;
             background: rgba(0,0,0,0.7);
             display: none;
-            white-space: pre;
         }
-        #settingsBtn {
-            position: fixed;
-            top: 8px;
-            right: 8px;
-            z-index: 1000;
+
+        #overlayContent {
+            margin: 0;
+        }
+
+        .overlay-btn {
+            width: auto;
+            margin-top: 12px;
+            padding: 6px 10px;
             background: #000;
             color: #0f0;
             border: 1px solid #0f0;
             font-family: monospace;
             cursor: pointer;
+        }
+
+        .overlay-btn:hover {
+            background: #0f0;
+            color: #000;
         }
 
         #settingsPanel {
@@ -110,7 +118,13 @@
     </style>
 </head>
 <body>
-<div id="overlay"></div>
+<div id="overlay">
+    <pre id="overlayContent"></pre>
+
+    <button id="copyResultBtn" class="overlay-btn">
+        Copy result
+    </button>
+</div>
 
 <div id="settingsPanel">
     <h3>Benchmark settings</h3>
