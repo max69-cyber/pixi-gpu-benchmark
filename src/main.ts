@@ -20,8 +20,6 @@ async function bootstrap() {
 
     app = new Application();
 
-    console.log('[bootstrap] before pixi init');
-
     await app.init({
         canvas,
         width: window.innerWidth,
@@ -33,8 +31,6 @@ async function bootstrap() {
         powerPreference: 'high-performance',
         failIfMajorPerformanceCaveat: true,
     });
-
-    console.log('[bootstrap] pixi initialized');
 
     initSettingsPanel(run);
 }
