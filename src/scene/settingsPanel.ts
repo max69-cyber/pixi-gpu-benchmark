@@ -1,16 +1,18 @@
 import {type BenchmarkConfig, PresetType} from "../types.ts";
 
+const ARM_MULTIPLIER = 0.7;
+
 const presets: Record<
     PresetType,
     Pick<BenchmarkConfig, 'resolutionScale' | 'spriteCount'>
 > = {
-    [PresetType.VERY_LIGHT]: { resolutionScale: 2, spriteCount: 484 },
-    [PresetType.LIGHT]: { resolutionScale: 3, spriteCount: 1089 },
-    [PresetType.MODERATE]: { resolutionScale: 4, spriteCount: 1936 },
-    [PresetType.BALANCED]: { resolutionScale: 5, spriteCount: 3025 },
-    [PresetType.HEAVY]: { resolutionScale: 7, spriteCount: 5929 },
-    [PresetType.VERY_HEAVY]: { resolutionScale: 9, spriteCount: 9801 },
-    [PresetType.EXTREME]: { resolutionScale: 11, spriteCount: 14884 },
+    [PresetType.VERY_LIGHT]: { resolutionScale: 1, spriteCount: 5000 },
+    [PresetType.LIGHT]: { resolutionScale: 1, spriteCount: 7500 },
+    [PresetType.MODERATE]: { resolutionScale: 1, spriteCount: 10000 },
+    [PresetType.BALANCED]: { resolutionScale: 1, spriteCount: 15000 },
+    [PresetType.HEAVY]: { resolutionScale: 1, spriteCount: 30000 },
+    [PresetType.VERY_HEAVY]: { resolutionScale: 1, spriteCount: 45000 },
+    [PresetType.EXTREME]: { resolutionScale: 1, spriteCount: 60000 },
     [PresetType.CUSTOM]: { resolutionScale: 1, spriteCount: 1 },
 };
 
@@ -27,6 +29,7 @@ export function initSettingsPanel(
     const targetFps = document.getElementById('targetFps') as HTMLInputElement;
     const fpsTolerance = document.getElementById('fpsTolerance') as HTMLInputElement;
     const runBtn = document.getElementById('runBenchmark')!;
+    const isARM = document.getElementById('isARM') as HTMLInputElement;
 
     preset.value = PresetType.BALANCED;
     const p = presets[PresetType.BALANCED];
@@ -56,9 +59,15 @@ export function initSettingsPanel(
 
     // --- run ---
     runBtn.addEventListener('click', () => {
+        let correctSpriteCount = Number(spriteCount.value);
+
+        if (isARM) {
+            correctSpriteCount *= ARM_MULTIPLIER;
+        }
+
         const config: BenchmarkConfig = {
             resolutionScale: Number(resolutionScale.value),
-            spriteCount: Number(spriteCount.value),
+            spriteCount: correctSpriteCount,
             frameCount: Number(frameCount.value),
             runs: Number(runsCount.value),
             warmupRuns: Number(warmupRuns.value),

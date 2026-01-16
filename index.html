@@ -41,6 +41,23 @@
             color: #000;
         }
 
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 12px;
+            font-size: 11px;
+            opacity: 0.85;
+            cursor: pointer;
+        }
+
+        .checkbox-input {
+            width: auto !important;
+            margin: 0;
+            accent-color: #0f0;
+            cursor: pointer;
+        }
+
         #settingsPanel {
             position: fixed;
             top: 0;
@@ -141,11 +158,11 @@
         <option value="custom">Custom</option>
     </select>
 
-    <label>Resolution scale</label>
-    <input id="resolutionScale" type="number" step="0.1" />
-
     <label>Sprite count</label>
     <input id="spriteCount" type="number" />
+
+    <label>Resolution scale</label>
+    <input id="resolutionScale" type="number" step="0.1" />
 
     <label>Frame count</label>
     <input id="frameCount" type="number" />
@@ -161,6 +178,11 @@
 
     <label>FPS tolerance (ms)</label>
     <input id="fpsTolerance" type="number" step="0.1" />
+
+    <label class="checkbox-label">
+    </label>
+    <input id="isARM" type="checkbox" class="checkbox-input" />
+    ARM architecture?
 
     <button id="runBenchmark">Run benchmark</button>
 </div>

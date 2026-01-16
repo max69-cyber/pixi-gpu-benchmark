@@ -1,7 +1,5 @@
-//deprecated
-
-import {Application, Container, Graphics, Sprite} from 'pixi.js';
-import {createTextures} from './textureFactory.ts';
+import { Application, Container, Graphics, Sprite } from 'pixi.js';
+import { createTextures } from './textureFactory.ts';
 
 export function createGpuScene(
     app: Application,
@@ -29,30 +27,23 @@ export function createGpuScene(
 
     const textures = createTextures(spriteCount, 60);
 
-    const spriteSize = 60;
-    const gap = 18;
-    const cell = spriteSize + gap;
+    const spriteSize = 16 * resolutionScale;
 
-    const cols = Math.floor(sceneSize / cell);
-    let index = 0;
+    for (let i = 0; i < spriteCount; i++) {
+        const s = new Sprite(textures[i]);
 
-    for (let y = 0; index < spriteCount; y++) {
-        for (let x = 0; x < cols && index < spriteCount; x++) {
-            const s = new Sprite(textures[index]);
+        s.width = spriteSize;
+        s.height = spriteSize;
 
-            s.width = spriteSize;
-            s.height = spriteSize;
-            s.x = x * cell + gap / 2;
-            s.y = y * cell + gap / 2;
-            s.alpha = 0.3 + Math.random() * 0.2;
+        s.x = Math.random() * (sceneSize - spriteSize);
+        s.y = Math.random() * (sceneSize - spriteSize);
 
-            root.addChild(s);
-            index++;
-        }
+        s.alpha = 0.33;
+
+        root.addChild(s);
     }
 
     const rotationPerFrame = 0.003;
-
     let t = 0;
 
     return {

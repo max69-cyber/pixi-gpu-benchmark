@@ -37,9 +37,9 @@ ${result.allRuns
 Passed runs:   ${passedRuns} / ${result.allRuns.length}
 Status:        ${isPassed ? 'passed' : 'not passed'}
 
-${isPassed ? '' : '!!! If the test not passed, the next\nrun will likely cause a WebGL context loss.\nReload the page before running the heavy test again.'}
-`.trim();
+Score:         ${result.allRuns.reduce((sum, run) => sum + run.score, 0)} / ${result.runs * 1000}
 
+`
     content.textContent = text;
     overlay.style.display = 'block';
 

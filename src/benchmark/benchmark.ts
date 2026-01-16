@@ -64,7 +64,7 @@ export async function runGpuBenchmarkOnce(
 
             frames++;
 
-            if (dt < targetMs * 4) {
+
                 accFrameTime += dt;
                 measuredFrames++;
 
@@ -72,7 +72,7 @@ export async function runGpuBenchmarkOnce(
                     overBudgetFrames++;
                     totalPenaltyMs += dt - targetMs;
                 }
-            }
+
 
             renderFrame();
 
@@ -90,8 +90,6 @@ export async function runGpuBenchmarkOnce(
                 )
 
                 const isPassed = avgFrameMs <= targetMs + fpsTolerance;
-
-
 
                 resolve({
                     frames,
