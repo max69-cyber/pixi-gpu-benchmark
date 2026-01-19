@@ -1,5 +1,6 @@
 //deprecated
 import type {GpuBenchmarkResult, GpuBenchmarkRunResult} from "../types.ts";
+import {logLine} from "../logger.ts";
 
 export async function runGpuBenchmark(
     renderFrame: () => void,
@@ -21,6 +22,8 @@ export async function runGpuBenchmark(
         if (i + 1  > warmupRunsCount) {
             results.push(result);
         }
+
+        logLine(`Run ${i + 1} is done. Score: ${result.score}, Avg.Frame: ${result.avgFrameMs.toFixed(3)}`);
     }
 
     const avgFrameMs =

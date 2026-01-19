@@ -27,6 +27,8 @@ Derived FPS:   ${result.fps.toFixed(1)}
 Best frame:    ${best.toFixed(3)} ms
 Worst frame:   ${worst.toFixed(3)} ms
 
+Sprites:       ${config.spriteCount}
+
 Per-run results:
 ${result.allRuns
         .map((r, i) =>

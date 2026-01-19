@@ -62,7 +62,7 @@
             position: fixed;
             top: 0;
             right: 0;
-            width: 300px;
+            width: 370px;
             height: 100vh;
             padding: 12px;
             background: rgba(0,0,0,0.95);
@@ -184,7 +184,21 @@
     <input id="isARM" type="checkbox" class="checkbox-input" />
     ARM architecture?
 
-    <button id="runBenchmark">Run benchmark</button>
+    <button id="runBenchmark" class="overlay-btn">Run benchmark</button>
+    <button id="runAutoTest" class="overlay-btn">Run auto test</button>
+
+    <label>Execution log</label>
+    <pre id="runLog" style="
+    border: 1px solid #0f0;
+    height: 350px;
+    overflow-y: auto;
+    font-size: 10px;
+    opacity: 0.85;
+"></pre>
+
+    <button id="copyLogBtn" class="overlay-btn">
+        Copy to clipboard
+    </button>
 </div>
 
 <div id="contextLostPanel">

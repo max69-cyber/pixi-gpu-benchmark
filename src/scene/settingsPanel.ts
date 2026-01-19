@@ -1,4 +1,5 @@
 import {type BenchmarkConfig, PresetType} from "../types.ts";
+import {copyLogToClipboard} from "../logger.ts";
 
 const ARM_MULTIPLIER = 0.7;
 
@@ -18,7 +19,8 @@ const presets: Record<
 
 
 export function initSettingsPanel(
-    onRun: (config: BenchmarkConfig, preset: PresetType) => void,
+    onRun: (config: BenchmarkConfig, preset: PresetType) => Promise<void>,
+    onAutoTestRun: (config: BenchmarkConfig, preset: PresetType) => Promise<void>,
 ) {
     const preset = document.getElementById('preset') as HTMLSelectElement;
     const resolutionScale = document.getElementById('resolutionScale') as HTMLInputElement;
@@ -29,7 +31,9 @@ export function initSettingsPanel(
     const targetFps = document.getElementById('targetFps') as HTMLInputElement;
     const fpsTolerance = document.getElementById('fpsTolerance') as HTMLInputElement;
     const runBtn = document.getElementById('runBenchmark')!;
+    const runAutoTestBtn = document.getElementById('runAutoTest')!;
     const isARM = document.getElementById('isARM') as HTMLInputElement;
+    const copyLogBtn = document.getElementById('copyLogBtn') as HTMLButtonElement;
 
     preset.value = PresetType.BALANCED;
     const p = presets[PresetType.BALANCED];
@@ -37,9 +41,9 @@ export function initSettingsPanel(
     resolutionScale.value = String(p.resolutionScale);
     spriteCount.value = String(p.spriteCount);
 
-    frameCount.value = '12';
-    runsCount.value = '7';
-    warmupRuns.value = '2';
+    frameCount.value = '15';
+    runsCount.value = '25';
+    warmupRuns.value = '5';
     targetFps.value = '60';
     fpsTolerance.value = '0.5';
 
@@ -57,26 +61,76 @@ export function initSettingsPanel(
         spriteCount.value = String(p.spriteCount);
     });
 
-    // --- run ---
-    runBtn.addEventListener('click', () => {
-        let correctSpriteCount = Number(spriteCount.value);
+    runBtn.addEventListener('click', async () => {
+        setButtonState(runBtn as HTMLButtonElement, 'Running…', true);
+        setButtonState(runAutoTestBtn as HTMLButtonElement, 'Run auto test', true);
 
-        if (isARM) {
-            correctSpriteCount *= ARM_MULTIPLIER;
+        try {
+            let correctSpriteCount = Number(spriteCount.value);
+
+            if (isARM.checked) {
+                correctSpriteCount *= ARM_MULTIPLIER;
+            }
+
+            const config: BenchmarkConfig = {
+                resolutionScale: Number(resolutionScale.value),
+                spriteCount: correctSpriteCount,
+                frameCount: Number(frameCount.value),
+                runs: Number(runsCount.value),
+                warmupRuns: Number(warmupRuns.value),
+                targetMs: 1000 / Number(targetFps.value),
+                fpsTolerance: Number(fpsTolerance.value),
+            };
+
+
+            await onRun(config, preset.value as PresetType);
+        } finally {
+            setButtonState(runBtn as HTMLButtonElement, 'Run benchmark', false);
+            setButtonState(runAutoTestBtn as HTMLButtonElement, 'Run auto test', false);
+        }
+    });
+
+    runAutoTestBtn.addEventListener('click', async () => {
+        setButtonState(runAutoTestBtn as HTMLButtonElement, 'Auto test running…', true);
+        setButtonState(runBtn as HTMLButtonElement, 'Run benchmark', true);
+
+        try {
+            let correctSpriteCount = Number(spriteCount.value);
+
+            if (isARM) {
+                correctSpriteCount *= ARM_MULTIPLIER;
+            }
+
+            const config: BenchmarkConfig = {
+                resolutionScale: Number(resolutionScale.value),
+                spriteCount: correctSpriteCount,
+                frameCount: Number(frameCount.value),
+                runs: Number(runsCount.value),
+                warmupRuns: Number(warmupRuns.value),
+                targetMs: 1000 / Number(targetFps.value),
+                fpsTolerance: Number(fpsTolerance.value),
+            };
+
+
+            await onAutoTestRun(config, preset.value as PresetType);
+        } finally {
+            setButtonState(runAutoTestBtn as HTMLButtonElement, 'Run auto test', false);
+            setButtonState(runBtn as HTMLButtonElement, 'Run benchmark', false);
         }
 
-        const config: BenchmarkConfig = {
-            resolutionScale: Number(resolutionScale.value),
-            spriteCount: correctSpriteCount,
-            frameCount: Number(frameCount.value),
-            runs: Number(runsCount.value),
-            warmupRuns: Number(warmupRuns.value),
-            targetMs: 1000 / Number(targetFps.value),
-            fpsTolerance: Number(fpsTolerance.value),
-        };
+    });
 
+    copyLogBtn.addEventListener('click', async () => {
+        copyLogToClipboard();
 
-        onRun(config, preset.value as PresetType);
+        const prevText = copyLogBtn.textContent;
+        copyLogBtn.textContent = 'Copied!';
+        copyLogBtn.disabled = true;
+
+        setTimeout(() => {
+            copyLogBtn.textContent = prevText || 'Copy log';
+            copyLogBtn.disabled = false;
+        }, 1000);
     });
 
     [
@@ -94,4 +148,15 @@ export function initSettingsPanel(
             }
         });
     });
+}
+
+function setButtonState(
+    btn: HTMLButtonElement,
+    text: string,
+    disabled: boolean,
+) {
+    btn.textContent = text;
+    btn.disabled = disabled;
+    btn.style.opacity = disabled ? '0.6' : '1';
+    btn.style.cursor = disabled ? 'not-allowed' : 'pointer';
 }
